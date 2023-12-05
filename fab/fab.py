@@ -8,14 +8,14 @@ def create_virtual_environment():
     user_response = input("No virtual environment found. Do you want to create one? (yes/no): ").lower()
     return user_response == "yes"
 
-def create_and_run_virtual_environment(project_path,output_file, venv_type):
+def create_and_run_virtual_environment(project_path, venv_type):
     if venv_type == "venv":
-        run_venv.run_fab(project_path=project_path,output_file=output_file)
+        run_venv.run_fab(project_path=project_path)
     elif venv_type == "pipenv":
-        run_pipenv.run_fab(project_path=project_path, output_file=output_file)
+        run_pipenv.run_fab(project_path=project_path)
     else:
         print("Invalid virtual environment type. Using venv as default.")
-        run_venv.run_fab(project_path=project_path, output_file=output_file)
+        run_venv.run_fab(project_path=project_path)
 
 
 def run_fab_and_save_results(project_path, output_file,venv_type):
@@ -25,7 +25,7 @@ def run_fab_and_save_results(project_path, output_file,venv_type):
             sys.stdout = file
             sys.stderr = file
 
-            create_and_run_virtual_environment(project_path, output_file=output_file, venv_type=venv_type)
+            create_and_run_virtual_environment(project_path, venv_type=venv_type)
 
     finally:
         # Reset standard output and error to the console
