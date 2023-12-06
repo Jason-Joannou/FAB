@@ -48,7 +48,8 @@ def choose_virtual_environment():
 
 def main():
     parser = argparse.ArgumentParser(description="Run fab commands in a Python project.")
-    parser.add_argument("project_path", help="Path to the Python project")
+    parser.add_argument("--project_path", help="Path to the Python project", required=True)
+    parser.add_argument("--output_path", help="Location of the format and build suggestion text file", required=False)
 
     args = parser.parse_args()
     project_path = args.project_path
@@ -57,7 +58,8 @@ def main():
     venv_exists = os.path.exists(os.path.join(project_path, "venv"))
     pipenv_exists = os.path.exists(os.path.join(project_path, "Pipfile"))
     # Set the output file name based on the project path
-    output_file = "./format.txt"
+    directory_name = os.path.basename(project_path)
+    output_file = args.output if args.output else os.path.join(project_path, f"{directory_name}_formatting_results.txt")
 
     if venv_exists:
         # Virtual environment exists, activate and run fab commands
