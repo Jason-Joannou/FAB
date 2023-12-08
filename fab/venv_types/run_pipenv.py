@@ -62,7 +62,7 @@ def run_fab(project_path):
     run_flake8(project_path)
     run_mypy(project_path)
     run_pylint(project_path)
-    print("All checks passed!")
+    print("All checks have finished running!")
 
 def create_virtual_environment():
     user_response = input("No virtual environment found. Do you want to create one? (yes/no): ").lower()
