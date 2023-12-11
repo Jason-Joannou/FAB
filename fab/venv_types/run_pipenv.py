@@ -3,8 +3,17 @@ import subprocess
 import sys
 import os
 
-def install_package(package, projec_path):
-    subprocess.run([sys.executable, "-m", "pipenv", "install", package], check=True, cwd=projec_path, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+def install_package(package, project_path):
+    result = subprocess.run(
+        [sys.executable, "-m", "pip", "install", package],
+        check=True,
+        shell=True,
+        cwd=project_path,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+    print(result.stdout.decode("utf-8"))
+    print(result.stderr.decode("utf-8"))
     print(f"Installed {package}")
 
 def check_and_install_tools(project_path):
