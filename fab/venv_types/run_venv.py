@@ -112,7 +112,7 @@ def remove_from_gitignore(project_path, venv_name):
     print(f"Removed {venv_name} from .gitignore")
 
 
-def run_fab(project_path, venv_name="venv"):
+def run_fab(project_path, venv_name):
 
     if not os.path.exists(project_path):
         print(f"Project path {project_path} does not exist.")
@@ -120,16 +120,10 @@ def run_fab(project_path, venv_name="venv"):
 
     venv_dir = os.path.join(project_path, venv_name)
 
-    if not os.path.exists(venv_dir):
-        user_response = input(
-            "No virtual environment found. Do you want to create one? (yes/no): "
-        ).lower()
-        if user_response == "yes":
-            add_to_gitignore(project_path, venv_name)
-            create_virtual_environment(project_path=project_path, venv_name=venv_name)
-
-    else:
-        activate_virtual_environment(project_path=project_path, venv_name=venv_name)
+    
+    add_to_gitignore(project_path, venv_name)
+    create_virtual_environment(project_path=project_path, venv_name=venv_name)
+    activate_virtual_environment(project_path=project_path, venv_name=venv_name)
 
     # Prepare the command to activate and run all in a subprocess
     activate_and_run = f'cmd /c "{venv_name}\\Scripts\\activate && python -m pip install --upgrade pip setuptools wheel && '
