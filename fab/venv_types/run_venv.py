@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import sys
 import venv
+from datetime import datetime
 
 OTHER_VENVS = [".venv", "venv"]
 
@@ -29,6 +30,44 @@ def check_and_install_tools(project_path):
         except subprocess.CalledProcessError:
             print(f"{tool} is not installed. Installing...")
             install_package(tool, project_path)
+
+def generate_formatting_report(project_path, venv_name):
+    report_filename = f"formatting_report_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt"
+    report_path = os.path.join(project_path, report_filename)
+
+    print(f"Generating formatting report: {report_path}")
+
+    activate_and_run = f'cmd /c "{venv_name}\\Scripts\\activate && '
+
+    OTHER_VENVS.append(venv_name)
+    formatted_paths = [f"./{env}/" for env in OTHER_VENVS]
+    isort_skips = " --skip ".join(OTHER_VENVS)
+    black_skips = " --exclude ".join(OTHER_VENVS)
+    flake_skips = ",".join(OTHER_VENVS)
+    mypy_skips = " --exclude ".join(formatted_paths)
+    pylint_skips = " --ignore=".join(formatted_paths)+" "
+    OTHER_VENVS.pop()
+    commands = [
+        f"isort --check . --skip {isort_skips}",
+        f"black --check . --exclude {black_skips}",
+        f"flake8 --statistics --exclude {flake_skips}",
+        f"mypy --pretty . --exclude {mypy_skips}",
+        f"pylint --output-format=text ./src --ignore={pylint_skips}"
+    ]
+
+    with open(report_path, "w") as report_file:
+        for command in commands:
+            # Construct the full command with virtual environment activation
+            full_command = activate_and_run + command + '"'
+            result = subprocess.run(full_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=project_path, shell=True)
+            report_file.write(f"{full_command}\n")
+            report_file.write(result.stdout.decode("utf-8"))
+            report_file.write(result.stderr.decode("utf-8"))
+            report_file.write("\n\n")
+
+    print("Formatting report generated successfully.")
+
+    return report_path
 
 
 def run_isort(project_path):
@@ -113,7 +152,7 @@ def remove_from_gitignore(project_path, venv_name):
     print(f"Removed {venv_name} from .gitignore")
 
 
-def run_fab(project_path, venv_name):
+def run_fab(project_path, venv_name, generate_report):
 
     if not os.path.exists(project_path):
         print(f"Project path {project_path} does not exist.")
@@ -159,6 +198,10 @@ def run_fab(project_path, venv_name):
     
     try:
         subprocess.run(full_command, shell=True, cwd=project_path)
+
+        if generate_report:
+            report_path = generate_formatting_report(project_path, venv_name)
+            print(f"Formatting report generated at: {report_path}")
     finally:
         delete_virtual_environment(project_path=project_path, venv_name=venv_name)
         remove_from_gitignore(project_path, venv_name)
