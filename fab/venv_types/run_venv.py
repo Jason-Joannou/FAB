@@ -5,6 +5,7 @@ import subprocess
 import sys
 import venv
 
+OTHER_VENVS = [".venv", "venv"]
 
 def install_package(package, project_path):
     subprocess.run(
@@ -118,9 +119,6 @@ def run_fab(project_path, venv_name):
         print(f"Project path {project_path} does not exist.")
         return
 
-    venv_dir = os.path.join(project_path, venv_name)
-
-    
     add_to_gitignore(project_path, venv_name)
     create_virtual_environment(project_path=project_path, venv_name=venv_name)
     activate_virtual_environment(project_path=project_path, venv_name=venv_name)
@@ -137,20 +135,28 @@ def run_fab(project_path, venv_name):
         ]
     )
 
+    OTHER_VENVS.append(venv_name)
+    formatted_paths = [f"./{env}/" for env in OTHER_VENVS]
+    isort_skips = " --skip ".join(OTHER_VENVS)
+    black_skips = " --exclude ".join(OTHER_VENVS)
+    flake_skips = ",".join(OTHER_VENVS)
+    mypy_skips = " --exclude ".join(formatted_paths)
+    pylint_skips = " --ignore=".join(formatted_paths)+" "
+    OTHER_VENVS.pop()
     tools_commands = " && ".join(
         [
-            f"isort . --skip {venv_name}",
-            f"black . --exclude {venv_name}",
-            f"flake8 . --exclude {venv_name}",
-            f"mypy . --exclude {venv_name}",
-            f"pylint ./src --ignore-patterns {venv_name}",
+            f"isort . --skip {isort_skips}",
+            f"black . --exclude {black_skips}",
+            f"flake8 . --exclude {flake_skips}",
+            f"mypy . --exclude {mypy_skips}",
+            f"pylint ./src --ignore={pylint_skips}",
         ]
     )
 
     full_command = (
         activate_and_run + tools_install_commands + " && " + tools_commands + '"'
     )
-
+    
     try:
         subprocess.run(full_command, shell=True, cwd=project_path)
     finally:
