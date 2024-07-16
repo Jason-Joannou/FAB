@@ -30,7 +30,7 @@ def main():
     )
     parser.add_argument(
         "--venv_name",
-        help="Virtual Enviroment Name within the project. Defaults to venv.",
+        help="Virtual Enviroment Name within the project. Defaults to format_venv",
         required=False,
         default="format_venv",
     )
