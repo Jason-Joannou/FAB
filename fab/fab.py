@@ -4,14 +4,6 @@ import sys
 
 from .venv_types import run_venv
 
-
-def create_virtual_environment():
-    user_response = input(
-        "No virtual environment found. Do you want to create one? (yes/no): "
-    ).lower()
-    return user_response == "yes"
-
-
 def create_and_run_virtual_environment(project_path, venv_name, generate_report):
     run_venv.run_fab(
         project_path=project_path, venv_name=venv_name, generate_report=generate_report
