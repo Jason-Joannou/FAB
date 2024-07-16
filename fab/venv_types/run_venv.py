@@ -8,31 +8,6 @@ from datetime import datetime
 
 OTHER_VENVS = [".venv", "venv"]
 
-
-def install_package(package, project_path):
-    subprocess.run(
-        [sys.executable, "-m", "pip", "install", package], check=True, cwd=project_path
-    )
-
-
-def check_and_install_tools(project_path):
-    required_tools = ["flake8", "black", "mypy", "pylint", "isort"]
-    for tool in required_tools:
-        try:
-            result = subprocess.run(
-                [tool, "--version"],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                check=True,
-                cwd=project_path,
-            )
-            version_output = result.stdout.decode("utf-8").strip()
-            print(f"{tool} version: {version_output}")
-        except subprocess.CalledProcessError:
-            print(f"{tool} is not installed. Installing...")
-            install_package(tool, project_path)
-
-
 def generate_formatting_report(project_path, venv_name):
     report_filename = (
         f"formatting_report_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt"
@@ -80,46 +55,10 @@ def generate_formatting_report(project_path, venv_name):
     return report_path
 
 
-def run_isort(project_path):
-    print("Running isort...")
-    subprocess.run(["isort", "."], check=False, cwd=project_path)
-
-
-def run_flake8(project_path):
-    print("Running flake8...")
-    subprocess.run(["flake8", "."], check=False, cwd=project_path)
-
-
-def run_black(project_path):
-    print("Running black...")
-    subprocess.run(["black", "."], check=False, cwd=project_path)
-
-
-def run_mypy(project_path):
-    print("Running mypy...")
-    subprocess.run(["mypy", "."], check=False, cwd=project_path)
-
-
-def run_pylint(project_path):
-    print("Running pylint...")
-    subprocess.run(["pylint", "./src"], check=False, cwd=project_path)
-
-
-def is_virtual_environment_activated():
-    return "VIRTUAL_ENV" in os.environ
-
-
 def activate_virtual_environment(project_path, venv_name):
     print("Activating virtual environment...")
     activate_script = os.path.join(venv_name, "Scripts", "activate")
     subprocess.run(activate_script, shell=True, check=True, cwd=project_path)
-
-
-def run_fab_commands(project_path):
-    commands = ["isort .", "black .", "flake8 .", "mypy .", "pylint ./src"]
-
-    for command in commands:
-        subprocess.run(command, shell=True, check=False, cwd=project_path)
 
 
 def create_virtual_environment(project_path, venv_name):
